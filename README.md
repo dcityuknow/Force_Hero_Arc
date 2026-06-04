@@ -44,10 +44,7 @@ force-hero/
 │
 ├── games/                        # Logic & assets của từng game
 │   ├── tugofwar/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── types.ts
-│   │   └── utils.ts
+.......
 │   ├── penalty/
 │   └── ...                       # Dễ thêm game mới
 │
@@ -56,10 +53,10 @@ force-hero/
 │   ├── useWallet.ts
 │   └── useGameStats.ts
 │
-├── public/                       # Static assets
+├── public/                        # Logic & assets của từng game
 │   ├── images/
-│   ├── icons/
-│   └── sounds/
+│   │   ├── common/
+│   ├── games/
 │
 ├── types/                        # TypeScript global types
 │   └── index.ts
