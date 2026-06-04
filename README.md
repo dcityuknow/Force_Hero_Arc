@@ -1,6 +1,6 @@
 # Force_Hero_Arc structure
 ```
-force-hero/
+force-hero-arc/
 ├── app/                          # Next.js App Router
 │   ├── (main)/                   # Group route chính (không ảnh hưởng URL)
 │   │   ├── layout.tsx
