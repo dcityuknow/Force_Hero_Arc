@@ -44,7 +44,10 @@ force-hero/
 │
 ├── games/                        # Logic & assets của từng game
 │   ├── tugofwar/
-.......
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── types.ts
+│   │   └── utils.ts
 │   ├── penalty/
 │   └── ...                       # Dễ thêm game mới
 │
@@ -53,10 +56,42 @@ force-hero/
 │   ├── useWallet.ts
 │   └── useGameStats.ts
 │
-├── public/                        # Logic & assets của từng game
+├── public/                       # Static assets (ảnh, icon, sound, video...)
 │   ├── images/
+│   │   ├── common/               # Ảnh chung toàn app (logo, banner, avatar default, bg lobby...)
+│   │   ├── games/                # Ảnh thumbnail, banner chung của các game
+│   │   │   ├── thumbnails/
+│   │   │   └── banners/
+│   │   └── placeholders/         # Ảnh tạm (loading, empty state...)
+│   │
+│   ├── games/                    # ← Assets riêng theo từng game (Khuyến nghị mạnh)
+│   │   ├── tugofwar/
+│   │   │   ├── backgrounds/
+│   │   │   ├── characters/
+│   │   │   ├── items/
+│   │   │   ├── ui/               # Button, icon, panel riêng của game
+│   │   │   ├── thumbnails/
+│   │   │   └── animations/       # (nếu có gif, sprite sheet)
+│   │   │
+│   │   ├── penalty/
+│   │   │   ├── backgrounds/
+│   │   │   ├── characters/
+│   │   │   ├── items/
+│   │   │   └── ui/
+│   │   │
+│   │   └── common/               # Assets chung giữa các game
+│   │
+│   ├── icons/                    # Icon SVG hoặc PNG nhỏ
 │   │   ├── common/
-│   ├── games/
+│   │   ├── wallet/
+│   │   └── game/
+│   │
+│   ├── sounds/                   # Âm thanh
+│   │   ├── common/
+│   │   ├── tugofwar/
+│   │   └── penalty/
+│   │
+│   └── videos/                   # (tùy chọn) Video intro, tutorial...
 │
 ├── types/                        # TypeScript global types
 │   └── index.ts
