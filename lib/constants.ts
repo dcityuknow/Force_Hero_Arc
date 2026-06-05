@@ -1,22 +1,22 @@
 // lib/constants.ts
+// Chain: ARC Testnet (Chain ID 5042002 = 0x4cef52)
 
+export const ARC_CHAIN_ID      = 5042002;
+export const ARC_CHAIN_ID_HEX  = '0x4cef52' as const;
+export const ARC_RPC_URL       = 'https://rpc.testnet.arc.network';
+export const ARC_EXPLORER_URL  = 'https://testnet.arcscan.app';
+
+export const USDC_ADDRESS         = '0x3600000000000000000000000000000000000000' as `0x${string}`;
+export const TREASURY_ADDRESS     = '0x4cd1d1b157f943feb2bebf2d36770ac3346e1128' as `0x${string}`;
+export const TICKET_CONTRACT_ADDR = '0x4698fa79738754B360E9a203E3e416CC8F680c92' as `0x${string}`;
+
+export const USDC_DECIMALS    = 6;
 export const TICKET_PRICE_USDC = 1; // 1 USDC per ticket
-export const TICKET_DECIMALS = 6; // USDC decimals
 
-export const SUPPORTED_CHAINS = {
-  BASE: 8453,
-  BASE_SEPOLIA: 84532,
-} as const;
-
-export const DEFAULT_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? SUPPORTED_CHAINS.BASE);
-
-export const CONTRACT_ADDRESSES = {
-  [SUPPORTED_CHAINS.BASE]: {
-    TICKET_SYSTEM: process.env.NEXT_PUBLIC_TICKET_SYSTEM_ADDRESS as `0x${string}`,
-    USDC: (process.env.NEXT_PUBLIC_USDC_ADDRESS ?? '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913') as `0x${string}`,
-  },
-  [SUPPORTED_CHAINS.BASE_SEPOLIA]: {
-    TICKET_SYSTEM: process.env.NEXT_PUBLIC_TICKET_SYSTEM_ADDRESS as `0x${string}`,
-    USDC: '0x036CbD53842c5426634e7929541eC2318f3dCF7e' as `0x${string}`,
-  },
+// Function selectors (ABI-encoded, from wallet.js)
+export const SELECTORS = {
+  approve:      '0x095ea7b3',
+  buyTickets:   '0x8f7a3d79',
+  useTickets:   '0x8f3b9b1c',
+  userTickets:  '0x83a26201',
 } as const;

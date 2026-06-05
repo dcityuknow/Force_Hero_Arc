@@ -1,40 +1,20 @@
 // components/common/Toast.tsx
+// Port toast UI từ style.css #arc-toast
 'use client';
-import { useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
+import { useWallet } from '@/hooks/useWallet';
 
-interface ToastProps {
-  message: string;
-  type?: 'success' | 'error' | 'info';
-  duration?: number;
-  onClose: () => void;
-}
-
-const typeStyles = {
-  success: 'border-brand-green/50 text-brand-green bg-brand-green/10',
-  error: 'border-brand-red/50 text-brand-red bg-brand-red/10',
-  info: 'border-brand-accent/50 text-brand-accent bg-brand-accent/10',
-};
-
-export default function Toast({ message, type = 'info', duration = 3000, onClose }: ToastProps) {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const t = setTimeout(() => { setVisible(false); onClose(); }, duration);
-    return () => clearTimeout(t);
-  }, [duration, onClose]);
-
-  if (!visible) return null;
-
+export default function Toast() {
+  const { toastMsg } = useWallet();
+  if (!toastMsg) return null;
   return (
     <div
-      className={cn(
-        'fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl border text-sm font-body font-bold shadow-xl',
-        'animate-[fadeUp_0.3s_ease_forwards]',
-        typeStyles[type]
-      )}
+      id="arc-toast"
+      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-full
+        bg-[rgba(15,15,40,0.95)] border border-white/10 text-white font-body font-bold text-sm
+        shadow-2xl whitespace-nowrap pointer-events-none
+        animate-[fadeUp_0.3s_ease_forwards]"
     >
-      {message}
+      {toastMsg}
     </div>
   );
 }

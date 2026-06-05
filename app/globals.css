@@ -1,41 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;900&display=swap');
+/* Port chính xác từ style.css + penalty.css */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;900&family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg-dark: #0a0a12;
+  --gold:    #f5c518;
+  --red:     #e63946;
+  --blue:    #1d80e0;
+  --green:   #4ade80;
+  --bg-dark:    #0a0e1a;
   --bg-surface: #12121e;
-  --bg-border: #1e1e30;
-  --accent-yellow: #f5c518;
-  --accent-red: #e63946;
-  --accent-green: #2ec4b6;
-  --accent-blue: #457b9d;
+  --bg-border:  #1e1e30;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-html,
-body {
+html, body {
   max-width: 100vw;
   overflow-x: hidden;
   background-color: var(--bg-dark);
-  color: #ffffff;
+  color: #fff;
   font-family: 'Nunito', sans-serif;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-surface); }
 ::-webkit-scrollbar-thumb { background: var(--bg-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #2e2e48; }
 
-/* Star background */
+/* ── Stars (port từ style.css .star + @keyframes twinkle) ── */
 .stars-bg {
   position: fixed;
   inset: 0;
@@ -43,41 +38,67 @@ body {
   z-index: 0;
   overflow: hidden;
 }
-
 .star {
   position: absolute;
   border-radius: 50%;
-  background: white;
-  animation: twinkle var(--duration, 3s) ease-in-out infinite;
-  animation-delay: var(--delay, 0s);
+  background: #fff;
+  animation: twinkle var(--dur, 3s) ease-in-out infinite alternate;
+  opacity: var(--op, 0.5);
 }
-
 @keyframes twinkle {
-  0%, 100% { opacity: 0.15; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.3); }
+  from { opacity: var(--op, 0.5); transform: scale(1); }
+  to   { opacity: calc(var(--op, 0.5) * 0.2); transform: scale(0.6); }
 }
 
-/* Card glow effect */
+/* ── Game card glow (port từ style.css .card-glow) ── */
 .card-glow {
   position: absolute;
-  inset: -1px;
+  inset: 0;
   border-radius: inherit;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s;
   pointer-events: none;
   z-index: 0;
 }
+.game-card:hover .card-glow { opacity: 1; }
+.game-card:hover .card-play-btn { letter-spacing: 3px; }
 
-.game-card:hover .card-glow {
-  opacity: 1;
+/* ── Card icon float animation ── */
+.card-icon-anim {
+  animation: cardFloat 4s ease-in-out infinite;
+}
+.card-icon-anim-delay {
+  animation: cardFloat 4s ease-in-out -2s infinite;
+}
+@keyframes cardFloat {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-8px) rotate(3deg); }
 }
 
-/* Page transition */
+/* ── Launch overlay transition ── */
+.launch-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-dark);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.launch-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Fade-up animation ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+.fade-up { animation: fadeUp 0.5s ease forwards; }
 
-.fade-up {
-  animation: fadeUp 0.5s ease forwards;
+/* ── slideUp (used by BuyTicketModal) ── */
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }

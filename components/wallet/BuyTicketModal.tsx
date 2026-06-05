@@ -1,86 +1,81 @@
 // components/wallet/BuyTicketModal.tsx
+// Port UI từ index.html modal + wallet.js buyTickets flow
 'use client';
 import { useState } from 'react';
 import { useTickets } from '@/hooks/useTickets';
-import { buyTickets } from '@/contracts/ticketSystem';
-import { cn } from '@/lib/utils';
+import { useWallet } from '@/hooks/useWallet';
 
-interface Props {
-  onClose: () => void;
-}
-
-const AMOUNTS = [5, 10, 20, 50];
+interface Props { onClose: () => void }
 
 export default function BuyTicketModal({ onClose }: Props) {
-  const [selected, setSelected] = useState(10);
-  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
-  const { usdcBalanceFormatted, refetchTickets } = useTickets();
+  const [qty, setQty]         = useState(1);
+  const [status, setStatus]   = useState('');
+  const [loading, setLoading] = useState(false);
+  const { buyTickets }        = useTickets();
+  const { showToast }         = useWallet();
+  const MAX_QTY = 10;
 
-  const handleBuy = async () => {
-    setStatus('pending');
-    setErrorMsg('');
-    try {
-      const hash = await buyTickets(selected);
-      await new Promise((r) => setTimeout(r, 2000)); // wait a bit for tx
-      await refetchTickets();
-      setStatus('success');
-    } catch (e: unknown) {
-      setStatus('error');
-      setErrorMsg(e instanceof Error ? e.message : 'Transaction failed');
+  const changeQty = (delta: number) => setQty(q => Math.min(MAX_QTY, Math.max(1, q + delta)));
+
+  const confirmBuy = async () => {
+    setLoading(true);
+    setStatus('');
+    const ok = await buyTickets(qty);
+    setLoading(false);
+    if (ok) {
+      showToast(`🎟️ Mua thành công ${qty} ticket!`);
+      onClose();
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-brand-surface border border-brand-border rounded-2xl p-6 shadow-2xl">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h2 className="font-display text-3xl text-white">BUY TICKETS</h2>
-            <p className="text-gray-400 text-sm mt-1">1 ticket = 1 USDC</p>
-          </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-white text-xl">✕</button>
+    <div
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/75 backdrop-blur-sm"
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="relative bg-gradient-to-b from-[#12122a] to-[#0e1535] border border-white/10 rounded-3xl p-10 w-full max-w-sm text-center shadow-2xl animate-[slideUp_0.25s_cubic-bezier(0.34,1.56,0.64,1)_both]">
+        <button onClick={onClose} className="absolute top-4 right-5 text-gray-500 hover:text-white text-xl leading-none">✕</button>
+
+        <div className="text-5xl mb-2">🎟️</div>
+        <h2 className="font-display text-3xl text-[#ffe066] tracking-widest mb-2">Buy Tickets</h2>
+        <p className="text-gray-400 text-sm font-body mb-7 leading-relaxed">
+          1 Ticket = <strong className="text-[#ffe066]">1 USDC</strong><br />
+          Dùng để vào chơi mỗi game
+        </p>
+
+        {/* Qty selector */}
+        <div className="flex items-center justify-center gap-5 mb-5">
+          <button
+            onClick={() => changeQty(-1)}
+            className="w-11 h-11 rounded-full border-2 border-[#ffe066]/35 bg-[#ffe066]/8 text-[#ffe066] text-2xl font-black hover:bg-[#ffe066]/20 hover:scale-110 transition-all"
+          >−</button>
+          <span className="font-display text-5xl text-white min-w-[48px] tracking-widest">{qty}</span>
+          <button
+            onClick={() => changeQty(1)}
+            className="w-11 h-11 rounded-full border-2 border-[#ffe066]/35 bg-[#ffe066]/8 text-[#ffe066] text-2xl font-black hover:bg-[#ffe066]/20 hover:scale-110 transition-all"
+          >+</button>
         </div>
 
-        <p className="text-gray-400 text-sm mb-4">Your USDC: <span className="text-white font-bold">{usdcBalanceFormatted}</span></p>
-
-        {/* Amount selector */}
-        <div className="grid grid-cols-4 gap-2 mb-6">
-          {AMOUNTS.map((amt) => (
-            <button
-              key={amt}
-              onClick={() => setSelected(amt)}
-              className={cn(
-                'py-3 rounded-xl font-display text-xl transition-all',
-                selected === amt
-                  ? 'bg-brand-accent text-brand-dark'
-                  : 'bg-brand-dark border border-brand-border text-white hover:border-brand-accent/50'
-              )}
-            >
-              {amt}
-            </button>
-          ))}
+        <div className="text-gray-400 text-sm font-body mb-6">
+          Tổng: <strong className="text-green-400 text-base">{qty} USDC</strong>
         </div>
 
-        <div className="flex justify-between text-sm text-gray-400 mb-6">
-          <span>Total cost</span>
-          <span className="text-white font-bold">{selected} USDC</span>
-        </div>
-
-        {status === 'error' && (
-          <p className="text-brand-red text-sm mb-4">{errorMsg}</p>
-        )}
-        {status === 'success' && (
-          <p className="text-brand-green text-sm mb-4">✓ Tickets purchased successfully!</p>
-        )}
+        {status && <p className="text-yellow-400 text-xs font-body mb-3 animate-pulse">{status}</p>}
 
         <button
-          onClick={handleBuy}
-          disabled={status === 'pending'}
-          className="w-full py-3 rounded-xl bg-brand-accent text-brand-dark font-bold font-body text-lg hover:bg-brand-accent/90 disabled:opacity-50 transition-colors"
+          onClick={confirmBuy}
+          disabled={loading}
+          className="w-full py-4 bg-gradient-to-r from-[#ffe066] to-[#ffa825] text-[#0a0a1e] font-body font-black text-base rounded-2xl hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(255,168,37,0.45)] disabled:opacity-60 disabled:cursor-not-allowed transition-all"
         >
-          {status === 'pending' ? 'Processing...' : `Buy ${selected} Tickets`}
+          {loading ? '⏳ Đang xử lý…' : '🔗 Xác nhận & Thanh toán'}
         </button>
+
+        <p className="text-[#556] text-xs font-body mt-4 leading-relaxed">
+          Mạng: ARC Testnet · USDC native<br />
+          <a href="https://faucet.circle.com" target="_blank" className="text-green-400 hover:underline">
+            Nhận USDC testnet miễn phí →
+          </a>
+        </p>
       </div>
     </div>
   );

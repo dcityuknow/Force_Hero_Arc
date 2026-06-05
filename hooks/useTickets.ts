@@ -1,44 +1,32 @@
 // hooks/useTickets.ts
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import { useAccount } from 'wagmi';
-import { getTicketBalance } from '@/contracts/ticketSystem';
-import { getUSDCBalance } from '@/contracts/usdc';
-import { formatUnits } from 'viem';
-import { TICKET_DECIMALS } from '@/lib/constants';
+import { useWallet } from './useWallet';
+import { buyTicketsOnChain, useTicketOnChain, getTicketBalanceOnChain } from '@/contracts/ticketSystem';
+import { useCallback } from 'react';
 
 export function useTickets() {
-  const { address, isConnected } = useAccount();
+  const { address, ticketBalance, refreshTickets, showToast } = useWallet();
 
-  const {
-    data: ticketBalance,
-    isLoading: isLoadingTickets,
-    refetch: refetchTickets,
-  } = useQuery({
-    queryKey: ['tickets', address],
-    queryFn: () => getTicketBalance(address!),
-    enabled: !!address && isConnected,
-    refetchInterval: 15_000,
-  });
+  const buyTickets = useCallback(async (quantity: number): Promise<boolean> => {
+    if (!address) return false;
+    const ok = await buyTicketsOnChain(address, quantity, showToast);
+    if (ok) await refreshTickets();
+    return ok;
+  }, [address, showToast, refreshTickets]);
 
-  const {
-    data: usdcBalance,
-    isLoading: isLoadingUSDC,
-  } = useQuery({
-    queryKey: ['usdc', address],
-    queryFn: () => getUSDCBalance(address!),
-    enabled: !!address && isConnected,
-    refetchInterval: 30_000,
-  });
+  const useTicket = useCallback(async (): Promise<boolean> => {
+    if (!address) return false;
+    const count = await getTicketBalanceOnChain(address);
+    if (count < 1) return false;
+    const ok = await useTicketOnChain(address);
+    if (ok) await refreshTickets();
+    return ok;
+  }, [address, refreshTickets]);
 
   return {
-    ticketBalance: ticketBalance ?? 0n,
-    ticketBalanceFormatted: ticketBalance?.toString() ?? '0',
-    usdcBalance: usdcBalance ?? 0n,
-    usdcBalanceFormatted: usdcBalance
-      ? formatUnits(usdcBalance, TICKET_DECIMALS)
-      : '0',
-    isLoading: isLoadingTickets || isLoadingUSDC,
-    refetchTickets,
+    ticketBalance,
+    buyTickets,
+    useTicket,
+    refreshTickets,
   };
 }
