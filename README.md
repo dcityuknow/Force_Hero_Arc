@@ -47,7 +47,15 @@ force-hero/
 │   ├── viemClient.ts
 │   ├── utils.ts
 │   └── constants.ts
-│
+public/games/
+│     ├── tugofwar/
+│         ├── backgrounds/  background1.png, background2.png, background3.png
+│         ├── characters/   character_center.png, team_left.png, team_left_active.png, team_left_active2.png, team_right.png, team_right_active.png, team_right_active2.png
+│         └── items/        flag.png, item.png, ketqua.png, rope.png
+│     ├── penalty/  
+│         ├── backgrounds/  Background.png, Background1.png
+│         ├── characters/   goalkeeper.png, goalkeeper2.png, goalkeeper-up/down/left/right/left-up/left-down/right-up/right-down.png, shooter.png, shooter-2.png, shooter-3.png
+│         └── items/        ball.png, goal.png, ketqua.png
 ├── games/
 │   ├── tugofwar/                 # components/, hooks/, types.ts, utils.ts
 │   └── penalty/                  # components/, hooks/, types.ts, utils.ts
