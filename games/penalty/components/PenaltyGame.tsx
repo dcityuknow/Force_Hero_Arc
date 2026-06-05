@@ -12,33 +12,30 @@ import {
 import type { DiveDir, CompositeDir } from '../types';
 import { easeInOutQuart, perspectiveScale } from '../utils';
 
-// ── Asset paths ──────────────────────────────────────────
 const PEN   = '/games/penalty';
 const BG    = `${PEN}/backgrounds`;
 const CHARS = `${PEN}/characters`;
 const ITEMS = `${PEN}/items`;
 
-// Map DiveDir → goalkeeper image filename
 const KEEPER_IMG: Record<DiveDir, string> = {
-  'stand':       `${CHARS}/goalkeeper.png`,
-  'up':          `${CHARS}/goalkeeper-up.png`,
-  'down':        `${CHARS}/goalkeeper-down.png`,
-  'left':        `${CHARS}/goalkeeper-left.png`,
-  'right':       `${CHARS}/goalkeeper-right.png`,
-  'left-up':     `${CHARS}/goalkeeper-left-up.png`,
-  'left-down':   `${CHARS}/goalkeeper-left-down.png`,
-  'right-up':    `${CHARS}/goalkeeper-right-up.png`,
-  'right-down':  `${CHARS}/goalkeeper-right-down.png`,
+  'stand':      `${CHARS}/goalkeeper.png`,
+  'up':         `${CHARS}/goalkeeper-up.png`,
+  'down':       `${CHARS}/goalkeeper-down.png`,
+  'left':       `${CHARS}/goalkeeper-left.png`,
+  'right':      `${CHARS}/goalkeeper-right.png`,
+  'left-up':    `${CHARS}/goalkeeper-left-up.png`,
+  'left-down':  `${CHARS}/goalkeeper-left-down.png`,
+  'right-up':   `${CHARS}/goalkeeper-right-up.png`,
+  'right-down': `${CHARS}/goalkeeper-right-down.png`,
 };
 
-// ── History dots ─────────────────────────────────────────
 function HistoryDots({ history }: { history: ('goal' | 'miss')[] }) {
   return (
-    <div className="flex gap-1 mt-1">
+    <div className="flex gap-1">
       {Array.from({ length: TOTAL_ROUNDS }).map((_, i) => (
         <div key={i} className={cn(
           'w-3 h-3 rounded-full border',
-          !history[i]            ? 'border-gray-600 bg-transparent'
+          !history[i]             ? 'border-gray-600 bg-transparent'
           : history[i] === 'goal' ? 'bg-green-400 border-green-400'
           : 'bg-red-500 border-red-500'
         )} />
@@ -47,28 +44,25 @@ function HistoryDots({ history }: { history: ('goal' | 'miss')[] }) {
   );
 }
 
-// ── Power bar ────────────────────────────────────────────
 function PowerBar({ value, active }: { value: number; active: boolean }) {
   const color = value < 40 ? '#4caf50' : value < 65 ? '#ffeb3b' : value < 85 ? '#ff9800' : '#f44336';
   const label = value < 40 ? 'NHẸ' : value < 65 ? 'VỪA ⚡' : value < 85 ? 'MẠNH 🔥' : 'NGUY HIỂM ⚠️';
-
   return (
-    <div className={cn('w-full max-w-xs mx-auto', !active && 'opacity-40')}>
-      <div className="flex justify-between text-xs font-body text-gray-400 mb-1">
-        <span>POWER</span>
-        <span className="font-bold" style={{ color }}>{label}</span>
+    <div className={cn('transition-opacity', !active && 'opacity-50')}>
+      <div className="flex justify-between text-xs mb-1" style={{ color }}>
+        <span style={{ color: 'rgba(255,255,255,0.6)' }}>POWER</span>
+        <span className="font-bold">{label}</span>
       </div>
-      <div className="h-4 bg-[#222] rounded-full overflow-hidden border border-[#555]">
-        <div className="h-full rounded-full transition-none" style={{ width: `${value}%`, background: color, boxShadow: `0 0 12px ${color}99` }} />
+      <div className="h-4 rounded-full overflow-hidden" style={{ background: '#222', border: '1px solid #555' }}>
+        <div className="h-full rounded-full" style={{ width: `${value}%`, background: color, boxShadow: `0 0 12px ${color}99`, transition: 'none' }} />
       </div>
     </div>
   );
 }
 
-// ── Field animation hook ─────────────────────────────────
 function useFieldAnimation(
   fieldRef: React.RefObject<HTMLDivElement>,
-  ballRef:  React.RefObject<HTMLDivElement>,
+  ballRef: React.RefObject<HTMLDivElement>,
   keeperImgRef: React.RefObject<HTMLImageElement | null>,
   keeperRef: React.RefObject<HTMLDivElement>,
   onAnimDone: () => void,
@@ -81,7 +75,7 @@ function useFieldAnimation(
     ball.style.width  = sz + 'px';
     ball.style.height = sz + 'px';
     const ss = Math.round(4 + s * 8);
-    ball.style.filter = `drop-shadow(0 ${ss}px ${ss*2}px rgba(0,0,0,0.7))`;
+    ball.style.filter = `drop-shadow(0 ${ss}px ${ss * 2}px rgba(0,0,0,0.7))`;
     if (extraTransform !== undefined) ball.style.transform = extraTransform;
   }, []);
 
@@ -110,10 +104,7 @@ function useFieldAnimation(
     const arcHeight = Math.max(40, (fieldRect.top + fieldRect.height - by) * 0.35);
 
     ball.style.transition = 'none';
-
-    // Switch keeper image to dive pose
     if (kImg) kImg.src = KEEPER_IMG[diveDir];
-    // Move keeper div
     keeper.style.left   = ZONE_POS[keeperZone].l + '%';
     keeper.style.bottom = ZONE_POS[keeperZone].b + '%';
 
@@ -125,7 +116,7 @@ function useFieldAnimation(
       const et = easeInOutQuart(t);
       const cx = sx + (bx - sx) * et;
       const arcT = 1 - Math.pow(2 * t - 1, 2);
-      const cy = sy + (by - sy) * et - arcHeight * arcT;
+      const cy   = sy + (by - sy) * et - arcHeight * arcT;
 
       ball.style.left   = cx + 'px';
       ball.style.top    = cy + 'px';
@@ -145,7 +136,6 @@ function useFieldAnimation(
           ball.style.height = '160px';
           ball.style.transform = 'translateX(-50%)';
           ball.style.filter = 'drop-shadow(0 4px 8px rgba(0,0,0,0.7))';
-          // Reset keeper
           if (kImg) kImg.src = KEEPER_IMG['stand'];
           keeper.style.left   = '50%';
           keeper.style.bottom = '0%';
@@ -157,11 +147,9 @@ function useFieldAnimation(
   }, [fieldRef, ballRef, keeperRef, keeperImgRef, applyBallPerspective, onAnimDone]);
 
   useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
-
   return { animateShot };
 }
 
-// ── Arrow pad ─────────────────────────────────────────────
 const ARROW_PAD: { dir: string; label: string; col: number; row: number }[] = [
   { dir: 'up-left',    label: '↖', col: 1, row: 1 },
   { dir: 'up',         label: '↑', col: 2, row: 1 },
@@ -173,7 +161,6 @@ const ARROW_PAD: { dir: string; label: string; col: number; row: number }[] = [
   { dir: 'down-right', label: '↘', col: 3, row: 3 },
 ];
 
-// ── Main component ────────────────────────────────────────
 export default function PenaltyGame() {
   const {
     gameState, flash, shotAnim, powerValue, powerActive,
@@ -186,9 +173,9 @@ export default function PenaltyGame() {
 
   const { mode, round, playerScore, botScore, playerHistory, botHistory, phase, busy } = gameState;
 
-  const fieldRef      = useRef<HTMLDivElement>(null);
-  const ballRef       = useRef<HTMLDivElement>(null);
-  const keeperRef     = useRef<HTMLDivElement>(null);
+  const fieldRef     = useRef<HTMLDivElement>(null);
+  const ballRef      = useRef<HTMLDivElement>(null);
+  const keeperRef    = useRef<HTMLDivElement>(null);
   const keeperImgRef = useRef<HTMLImageElement | null>(null);
 
   const { animateShot } = useFieldAnimation(fieldRef, ballRef, keeperImgRef, keeperRef, () => {});
@@ -201,46 +188,52 @@ export default function PenaltyGame() {
 
   const handleArrowDown = (dir: string) => {
     if (busy || mode !== 'shooter') return;
-    const parts = dir.split('-');
-    setHeldKeys(new Set([...heldKeys, ...parts]));
+    setHeldKeys(new Set([...heldKeys, ...dir.split('-')]));
   };
   const handleArrowUp = (dir: string) => {
     const parts = dir.split('-');
     setHeldKeys(new Set([...heldKeys].filter(k => !parts.includes(k))));
   };
 
-  // ── MODE SELECT ──────────────────────────────────────
+  // ── MODE SELECT ─────────────────────────────────────
   if (phase === 'mode-select') {
     return (
-      <div className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 overflow-hidden">
-        {/* BG */}
-        <div className="absolute inset-0 z-0">
+      <div className="fixed inset-0 overflow-hidden" style={{ top: 64 }}>
+        <div className="absolute inset-0">
           <Image src={`${BG}/Background.png`} alt="bg" fill className="object-cover" priority />
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/55" />
         </div>
-        <Link href="/" className="absolute top-4 left-4 z-10 text-gray-300 hover:text-white text-sm transition-colors">← LOBBY</Link>
-        <div className="relative z-10 text-center mb-10">
-          <p className="text-white/60 text-sm tracking-[0.3em] font-body mb-2">SMIC GAME HUB</p>
-          <h1 className="font-display text-7xl text-white tracking-widest leading-none">PENALTY<br /><em className="not-italic text-green-400">SHOOTOUT</em></h1>
-          <p className="text-white/50 mt-3 font-body tracking-widest">5 rounds · pick your side</p>
-        </div>
-        <div className="relative z-10 flex gap-6 flex-wrap justify-center">
-          {([
-            { mode: 'shooter' as const, num: '01', icon: '⚽', title: 'SHOOTER', desc: 'Chọn góc trên khung thành để sút' },
-            { mode: 'keeper'  as const, num: '02', icon: '🧤', title: 'GOALKEEPER', desc: 'Chọn góc trên khung thành để nhảy chặn' },
-          ]).map(({ mode: m, num, icon, title, desc }) => (
-            <div
-              key={m}
-              onClick={() => startGame(m)}
-              className="w-56 bg-white/5 border border-white/20 rounded-3xl p-7 cursor-pointer text-center hover:bg-white/10 hover:border-white/50 hover:-translate-y-2 transition-all"
-            >
-              <div className="text-white/30 font-bold text-xl mb-2">{num}</div>
-              <div className="text-5xl mb-3">{icon}</div>
-              <h2 className="font-display text-3xl text-white tracking-widest mb-2">{title}</h2>
-              <p className="text-white/50 text-sm font-body">{desc}</p>
-              <div className="mt-4 text-white/60 font-bold tracking-widest text-sm">SELECT →</div>
-            </div>
-          ))}
+
+        <Link href="/" className="absolute top-4 left-4 z-10 text-gray-300 hover:text-white text-sm transition-colors font-bold">← LOBBY</Link>
+
+        <div className="relative z-10 h-full flex flex-col items-center justify-center gap-8 px-4">
+          <div className="text-center">
+            <p className="text-white/50 text-xs tracking-[0.4em] font-bold mb-2">SMIC GAME HUB</p>
+            <h1 style={{ fontFamily: 'Bangers, cursive', fontSize: 'clamp(3rem, 8vw, 5rem)', letterSpacing: '4px', color: '#fff', lineHeight: 1 }}>
+              PENALTY<br /><span style={{ color: '#4ade80' }}>SHOOTOUT</span>
+            </h1>
+            <p className="text-white/40 mt-3 text-sm tracking-widest">5 rounds · pick your side</p>
+          </div>
+
+          <div className="flex gap-6 flex-wrap justify-center">
+            {([
+              { m: 'shooter' as const, num: '01', icon: '⚽', title: 'SHOOTER',    desc: 'Chọn góc để sút' },
+              { m: 'keeper'  as const, num: '02', icon: '🧤', title: 'GOALKEEPER', desc: 'Chọn góc để nhảy chặn' },
+            ]).map(({ m, num, icon, title, desc }) => (
+              <div
+                key={m}
+                onClick={() => startGame(m)}
+                className="w-52 cursor-pointer text-center rounded-3xl p-7 transition-all hover:-translate-y-2 hover:bg-white/15"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)' }}
+              >
+                <div className="text-white/25 font-bold text-lg mb-2">{num}</div>
+                <div className="text-5xl mb-3">{icon}</div>
+                <h2 style={{ fontFamily: 'Bangers, cursive', fontSize: '1.8rem', letterSpacing: '2px', color: '#fff' }}>{title}</h2>
+                <p className="text-white/45 text-sm mt-2">{desc}</p>
+                <div className="mt-4 text-white/50 font-bold text-sm tracking-widest">SELECT →</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -248,23 +241,24 @@ export default function PenaltyGame() {
 
   // ── RESULT SCREEN ────────────────────────────────────
   if (phase === 'result') {
-    const won = playerScore > botScore;
+    const won  = playerScore > botScore;
     const drew = playerScore === botScore;
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-[#0a0e1a]">
-        <div className="relative text-center px-8 py-10 flex flex-col items-center gap-4">
-          {/* ketqua image behind text */}
-          <div className="absolute inset-0 pointer-events-none opacity-40">
+      <div className="fixed inset-0 flex items-center justify-center bg-[#0a0e1a]" style={{ top: 64 }}>
+        <div className="relative text-center flex flex-col items-center gap-5">
+          <div className="absolute inset-0 -m-16 pointer-events-none opacity-30">
             <Image src={`${ITEMS}/ketqua.png`} alt="" fill className="object-contain" />
           </div>
           <div className="relative z-10 flex flex-col items-center gap-4">
             <div className="text-8xl">{won ? '🏆' : drew ? '🤝' : '😞'}</div>
-            <h2 className="font-display text-6xl text-white">{won ? 'YOU WIN!' : drew ? "IT'S A DRAW!" : 'BOT WINS!'}</h2>
-            <p className="font-display text-4xl text-yellow-400">{playerScore} – {botScore}</p>
+            <h2 style={{ fontFamily: 'Bangers, cursive', fontSize: '3.5rem', color: '#fff', letterSpacing: '3px' }}>
+              {won ? 'YOU WIN!' : drew ? "IT'S A DRAW!" : 'BOT WINS!'}
+            </h2>
+            <p style={{ fontFamily: 'Bangers, cursive', fontSize: '2.5rem', color: '#ffd700' }}>{playerScore} – {botScore}</p>
             <div className="flex gap-3 mt-2">
-              <button onClick={rematch}     className="px-6 py-3 rounded-xl bg-green-600 text-white font-bold font-body hover:scale-105 transition-transform">⟳ REMATCH</button>
-              <button onClick={goModeSelect} className="px-6 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-bold font-body hover:bg-white/20 transition-colors">MODE</button>
-              <Link href="/"                className="px-6 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-bold font-body hover:bg-white/20 transition-colors">LOBBY</Link>
+              <button onClick={rematch}      className="px-6 py-3 rounded-xl bg-green-600 text-white font-bold hover:scale-105 transition-transform">⟳ REMATCH</button>
+              <button onClick={goModeSelect} className="px-6 py-3 rounded-xl text-white font-bold hover:bg-white/10 transition-colors" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)' }}>MODE</button>
+              <Link href="/"                 className="px-6 py-3 rounded-xl text-white font-bold hover:bg-white/10 transition-colors" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)' }}>LOBBY</Link>
             </div>
           </div>
         </div>
@@ -272,47 +266,52 @@ export default function PenaltyGame() {
     );
   }
 
-  // ── GAME SCREEN ──────────────────────────────────────
+  // ── GAME SCREEN (fullscreen như bản gốc) ─────────────
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center px-4 py-4 gap-3">
-      <button onClick={goModeSelect} className="self-start text-gray-500 hover:text-white text-sm font-body transition-colors">← Back</button>
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ top: 64 }}>
 
-      {/* HUD */}
-      <div className="w-full max-w-lg flex items-center justify-between bg-black/60 border border-white/10 rounded-2xl px-6 py-3">
-        <div className="text-center">
-          <p className="text-xs text-gray-400 font-body">YOU</p>
-          <p className="font-display text-4xl text-green-400">{playerScore}</p>
-          <HistoryDots history={playerHistory} />
+      {/* ── HUD bar (giống penalty.html .hud-bar) ── */}
+      <div className="relative z-30 flex items-center justify-between px-6 py-2 shrink-0"
+        style={{ background: 'rgba(0,0,0,0.7)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <button onClick={goModeSelect} className="text-gray-400 hover:text-white text-sm font-bold transition-colors">← LOBBY</button>
+        {/* Left score */}
+        <div className="flex items-center gap-8">
+          <div className="text-center">
+            <div className="text-gray-400 text-xs font-bold tracking-widest">YOU</div>
+            <div style={{ fontFamily: 'Bangers, cursive', fontSize: '2.2rem', color: '#4ade80', lineHeight: 1 }}>{playerScore}</div>
+            <HistoryDots history={playerHistory} />
+          </div>
+          <div className="text-center">
+            <div style={{ fontFamily: 'Bangers, cursive', fontSize: '1.1rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '2px' }}>
+              {round < TOTAL_ROUNDS ? `${round + 1} / ${TOTAL_ROUNDS}` : 'FINAL'}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">{mode === 'shooter' ? '⚽ STRIKER' : '🧤 KEEPER'}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-gray-400 text-xs font-bold tracking-widest">BOT</div>
+            <div style={{ fontFamily: 'Bangers, cursive', fontSize: '2.2rem', color: '#f87171', lineHeight: 1 }}>{botScore}</div>
+            <HistoryDots history={botHistory} />
+          </div>
         </div>
-        <div className="text-center">
-          <p className="font-display text-lg text-gray-500">
-            {round < TOTAL_ROUNDS ? `${round + 1} / ${TOTAL_ROUNDS}` : 'FINAL'}
-          </p>
-          <p className="text-xs text-gray-600 font-body mt-1">{mode === 'shooter' ? '⚽ STRIKER' : '🧤 KEEPER'}</p>
-        </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-400 font-body">BOT</p>
-          <p className="font-display text-4xl text-red-500">{botScore}</p>
-          <HistoryDots history={botHistory} />
-        </div>
+        <div className="w-16" />
       </div>
 
-      {/* Stadium */}
-      <div
-        ref={fieldRef}
-        className="relative w-full max-w-lg rounded-2xl overflow-hidden border border-white/10"
-        style={{ height: 340 }}
-      >
-        {/* BG */}
-        <Image src={`${BG}/Background1.png`} alt="stadium" fill className="object-cover z-0" />
+      {/* ── Stadium (chiếm hết phần còn lại) ── */}
+      <div ref={fieldRef} className="relative flex-1 overflow-hidden">
+        {/* Background */}
+        <Image src={`${BG}/Background1.png`} alt="stadium" fill className="object-cover z-0" priority />
 
-        {/* Goal net (keeper clickable zones) */}
+        {/* Goal net — vị trí giống penalty.html .goal-wrap */}
         <div
-          className="goal-net absolute left-1/2 -translate-x-1/2 border-2 border-white/30 rounded-b-none z-10"
-          style={{ top: 8, width: '55%', height: '42%' }}
+          className="goal-net absolute z-10"
+          style={{
+            left: '50%', transform: 'translateX(-50%)',
+            top: '5%', width: '55%', height: '44%',
+            border: '2px solid rgba(255,255,255,0.25)',
+          }}
         >
-          {/* Zone grid — only clickable in keeper mode */}
-          <div className="grid grid-cols-3 h-full w-full">
+          {/* Zone grid */}
+          <div className="grid grid-cols-3 absolute inset-0" style={{ zIndex: 2 }}>
             {Array.from({ length: 9 }).map((_, i) => (
               <div
                 key={i}
@@ -320,36 +319,39 @@ export default function PenaltyGame() {
                 onClick={() => mode === 'keeper' && !busy && keeperTurn(i)}
                 className={cn(
                   'border border-white/10 transition-all',
-                  mode === 'keeper' && !busy ? 'cursor-pointer hover:bg-white/20 hover:border-white/40' : ''
+                  mode === 'keeper' && !busy
+                    ? 'cursor-pointer hover:bg-white/25 hover:border-white/50'
+                    : ''
                 )}
               />
             ))}
           </div>
 
-          {/* Goal post image overlay */}
-          <div className="absolute inset-0 pointer-events-none">
-            <Image src={`${ITEMS}/goal.png`} alt="goal" fill className="object-fill opacity-90" />
+          {/* Goal image overlay */}
+          <div className="absolute inset-0 pointer-events-none z-[3]">
+            <Image src={`${ITEMS}/goal.png`} alt="goal" fill className="object-fill" />
           </div>
 
           {/* Keeper */}
           <div
             ref={keeperRef}
-            className="absolute -translate-x-1/2 transition-all duration-200 z-20"
-            style={{ left: '50%', bottom: '0%', width: 64, height: 96 }}
+            className="absolute z-[4] transition-all duration-150"
+            style={{ left: '50%', bottom: '0%', transform: 'translateX(-50%)', width: '18%', height: '80%' }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               ref={keeperImgRef}
               src={KEEPER_IMG['stand']}
               alt="goalkeeper"
-              className="w-full h-full object-contain"
+              style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom' }}
             />
           </div>
         </div>
 
-        {/* Shooter sprite */}
+        {/* Shooter sprite — bottom center */}
         {mode === 'shooter' && (
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10" style={{ width: 80, height: 120 }}>
+          <div className="absolute z-10"
+            style={{ bottom: '2%', left: '50%', transform: 'translateX(-50%)', width: '14%', aspectRatio: '1' }}>
             <Image src={`${CHARS}/shooter.png`} alt="shooter" fill className="object-contain object-bottom" />
           </div>
         )}
@@ -357,79 +359,88 @@ export default function PenaltyGame() {
         {/* Ball */}
         <div
           ref={ballRef}
-          className="absolute -translate-x-1/2 z-10"
-          style={{ left: '50%', bottom: '16%', width: 160, height: 160, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.7))' }}
+          className="absolute z-10"
+          style={{ left: '50%', bottom: '16%', width: 160, height: 160, transform: 'translateX(-50%)', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.7))' }}
         >
           <Image src={`${ITEMS}/ball.png`} alt="ball" fill className="object-contain" />
         </div>
 
-        {/* Shot result flash */}
+        {/* Flash result */}
         {flash && (
           <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
-            <span className="font-display text-4xl text-white drop-shadow-xl">{flash.text}</span>
+            <span style={{ fontFamily: 'Bangers, cursive', fontSize: '3rem', color: '#fff', textShadow: '0 0 20px rgba(255,255,255,0.5)', letterSpacing: '4px' }}>
+              {flash.text}
+            </span>
           </div>
         )}
       </div>
 
-      {/* Shooter controls */}
-      {mode === 'shooter' && !busy && (
-        <div className="w-full max-w-lg flex flex-col gap-3">
-          <PowerBar value={powerValue} active={powerActive} />
+      {/* ── Bottom controls ── */}
+      <div className="relative z-30 shrink-0 px-4 py-3"
+        style={{ background: 'rgba(0,0,0,0.75)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
 
-          {/* Direction display */}
-          <div className="text-center font-display text-4xl text-white">
-            {compositeDir ? (DIR_ICONS[compositeDir as CompositeDir] ?? '·') : '·'}
-          </div>
+        {mode === 'shooter' && !busy && (
+          <div className="max-w-lg mx-auto flex flex-col gap-2">
+            <PowerBar value={powerValue} active={powerActive} />
 
-          {/* PC hint */}
-          <p className="text-center text-gray-500 text-xs font-body hidden md:block">
-            {powerActive ? 'THẢ [D] ĐỂ SÚT!' : 'GIỮ [D] TÍCH LỰC + MŨI TÊN CHỌN HƯỚNG'}
-          </p>
-
-          {/* Mobile controls */}
-          <div className="flex justify-center">
-            <div className="grid grid-cols-3 grid-rows-3 gap-1 w-36 h-36">
-              {ARROW_PAD.map(({ dir, label, col, row }) => (
+            {/* Direction + controls row */}
+            <div className="flex items-center justify-between gap-4">
+              {/* Arrow pad */}
+              <div className="grid gap-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 44px)', gridTemplateRows: 'repeat(3, 44px)' }}>
+                {ARROW_PAD.map(({ dir, label, col, row }) => (
+                  <button
+                    key={dir}
+                    style={{ gridColumn: col, gridRow: row }}
+                    className={cn(
+                      'rounded-lg text-xl font-bold border transition-all',
+                      heldKeys.has(dir.split('-')[0]) || (dir.includes('-') && dir.split('-').every(p => heldKeys.has(p)))
+                        ? 'bg-yellow-400 text-black border-yellow-400'
+                        : 'text-gray-400'
+                    )}
+                    
+                    onPointerDown={() => handleArrowDown(dir)}
+                    onPointerUp={() => handleArrowUp(dir)}
+                    onPointerLeave={() => handleArrowUp(dir)}
+                  >
+                    {label}
+                  </button>
+                ))}
+                {/* Center kick button */}
                 <button
-                  key={dir}
+                  style={{ gridColumn: 2, gridRow: 2 }}
                   className={cn(
-                    'rounded-lg text-lg font-display border transition-all',
-                    `col-start-${col} row-start-${row}`,
-                    heldKeys.has(dir.split('-')[0]) || (dir.includes('-') && dir.split('-').every(p => heldKeys.has(p)))
-                      ? 'bg-yellow-400 text-black border-yellow-400'
-                      : 'bg-[#12121e] border-[#1e1e30] text-gray-400'
+                    'rounded-full border-2 font-black text-xs transition-all',
+                    powerActive ? 'bg-red-600 border-red-500 text-white scale-110' : 'text-gray-400'
                   )}
-                  onPointerDown={() => handleArrowDown(dir)}
-                  onPointerUp={() => handleArrowUp(dir)}
-                  onPointerLeave={() => handleArrowUp(dir)}
+                  onPointerDown={startPowerBar}
+                  onPointerUp={releasePowerBar}
+                  onPointerLeave={releasePowerBar}
                 >
-                  {label}
+                  KICK
                 </button>
-              ))}
-              {/* Center shoot button */}
-              <button
-                className={cn(
-                  'col-start-2 row-start-2 rounded-full border-2 font-body font-black text-xs transition-all',
-                  powerActive ? 'bg-red-600 border-red-500 text-white scale-110' : 'bg-[#12121e] border-[#1e1e30] text-gray-400'
-                )}
-                onPointerDown={startPowerBar}
-                onPointerUp={releasePowerBar}
-                onPointerLeave={releasePowerBar}
-              >
-                KICK
-              </button>
+              </div>
+
+              {/* Direction indicator */}
+              <div className="flex-1 text-center">
+                <div style={{ fontSize: '3rem', lineHeight: 1, color: '#fff' }}>
+                  {compositeDir ? (DIR_ICONS[compositeDir as CompositeDir] ?? '·') : '·'}
+                </div>
+                <p className="text-gray-500 text-xs mt-1 hidden md:block">
+                  {powerActive ? 'THẢ [D] ĐỂ SÚT!' : 'GIỮ [D] TÍCH LỰC + MŨI TÊN CHỌN HƯỚNG'}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {mode === 'keeper' && !busy && (
-        <p className="text-gray-500 text-sm font-body text-center">
-          Click vào khung thành để chọn hướng cản phá
-        </p>
-      )}
+        {mode === 'keeper' && !busy && (
+          <p className="text-center text-gray-400 text-sm py-2" style={{ fontFamily: 'Bangers, cursive', letterSpacing: '2px', fontSize: '1.1rem' }}>
+            CLICK VÀO KHUNG THÀNH ĐỂ BẮT BÓNG
+          </p>
+        )}
 
-      {busy && <p className="text-gray-600 text-sm font-body animate-pulse">...</p>}
+        {busy && <div className="text-center text-gray-600 text-sm py-2 animate-pulse">...</div>}
+      </div>
     </div>
   );
 }

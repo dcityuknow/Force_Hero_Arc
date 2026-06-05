@@ -166,7 +166,7 @@ export default function TugOfWarGame() {
   // ── START MENU (map select) ──────────────────────────
   if (gamePhase === 'menu') {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 gap-8 bg-[#0a0e1a]">
+      <div className="fixed inset-0 flex flex-col items-center justify-center px-4 gap-8 bg-[#0a0e1a] overflow-y-auto" style={{ top: 64 }}>
         <Link href="/" className="self-start text-gray-500 hover:text-white text-sm transition-colors">← Back to Lobby</Link>
         <h1 className="font-display text-6xl text-white tracking-widest">TUG OF WAR</h1>
         <p className="text-yellow-300 font-bold tracking-widest text-lg">CHOOSE MAP TO PLAY</p>
@@ -223,7 +223,7 @@ export default function TugOfWarGame() {
 
   // ── GAME SCREEN ──────────────────────────────────────
   return (
-    <div className="relative w-full h-screen overflow-hidden select-none">
+    <div className="fixed inset-0 overflow-hidden select-none" style={{ top: 64 }}>
 
       {/* Background */}
       {selectedMap && (
